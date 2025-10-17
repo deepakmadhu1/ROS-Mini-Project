@@ -1,0 +1,384 @@
+<?xml version="1.0"?>
+<robot name="ExamRobot" xmlns:xacro="http://www.ros.org/wiki/xacro"> 
+
+<xacro:property name="PI" value="3.1415926535897931"/>
+
+    <!-- Start of Links - first link must be a non-inertial link -->
+    <link name='base_link'>
+    </link> 
+	  <link name='base_footprint'>
+    </link> 
+ 
+ 
+
+
+
+    <link name="chassis">
+        <inertial>
+            <mass value="10"/>
+            <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.1"/>
+        </inertial>
+        <collision name="chassis">
+            <geometry>
+                <box size=".4 .2 .1" />
+            </geometry>
+        </collision>
+        <visual name="chassis">
+        <origin rpy="1.55 0 3.15" xyz="0.1 -0.08 0.0"/>
+            <geometry>
+               <mesh filename="package://examtask/meshes/Car1.stl"  scale="0.11 0.11 0.11"/>
+            </geometry>
+        </visual>
+    </link>       
+
+    <link name="castor">
+        <inertial>
+            <mass value=".1"/>
+            <inertia ixx="0.004" ixy="0.0" ixz="0.0" iyy="0.004" iyz="0.0" izz="0.002"/>
+        </inertial>
+        <collision name="castor">
+            <geometry>
+                <sphere radius=".05" />
+            </geometry>
+        </collision>              
+        <visual name="castor">
+            <geometry>
+                <sphere radius=".05" />
+            </geometry>
+        </visual>
+    </link>     
+
+    <link name="left_wheel">
+        <inertial>
+            <mass value=".5"/>
+            <inertia ixx="0.004" ixy="0.0" ixz="0.0" iyy="0.004" iyz="0.0" izz="0.002"/>
+        </inertial>
+        <pose>0.1 0.13 0.1 0 1.5707 1.5707</pose>
+        <collision name="left_wheel">
+            <geometry>
+                <cylinder radius='.1' length='.05'/>
+            </geometry>       
+        </collision>
+        <visual name="left_wheel">
+            <geometry>
+                <cylinder radius='.1' length='.05'/>
+            </geometry>               
+        </visual>
+    </link> 
+          
+    <link name="right_wheel">
+        <inertial>
+            <mass value=".5"/>
+            <inertia ixx="0.004" ixy="0.0" ixz="0.0" iyy="0.004" iyz="0.0" izz="0.002"/>
+        </inertial>
+        <pose>0.1 0.13 0.1 0 1.5707 1.5707</pose>
+        <collision name="right_wheel">
+            <geometry>
+                <cylinder radius='.1' length='.05'/>
+            </geometry>             
+        </collision>
+        <visual name="right_wheel">
+            <geometry>
+                <cylinder radius='.1' length='.05'/>
+            </geometry>         
+        </visual>
+    </link>            
+
+  <!-- Hokuyo Laser -->
+  <link name="hokuyo_link">
+    <collision>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry>
+    <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://examtask/meshes/hokuyo.dae"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+  
+  <link name="camera_point_link">
+    <collision>
+      <origin rpy="1.5708 0 4.75" xyz="-0.3 0 0.15"/>
+      <geometry>
+       <box size="0.1 0.1 0.1"/> 
+      </geometry>
+      </collision>
+      
+    
+
+     <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+
+</link>
+
+    <!-- Start of Joints - connecting all links together -->
+
+    
+    <joint name="joint0" type="fixed">
+        <parent link="base_link"/>
+        <child link="chassis"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.7"/>
+    </joint>
+    
+    <joint name="jointA" type="fixed">
+        <parent link="base_link"/>
+        <child link="base_footprint"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.7"/>
+    </joint>
+    
+    <joint name="joint1" type="fixed">
+        <parent link="chassis"/>
+        <child link="castor"/>
+        <origin xyz=".15 0 -.05" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.7"/>
+    </joint>
+
+    <joint type="continuous" name="wheel_left_joint">
+        <parent link="chassis"/>
+        <child link="left_wheel"/>
+        <origin xyz="-0.1 0.13 0" rpy="0 1.5707 1.5707"/>
+        <axis xyz="0 0 1"/>
+        <calibration rising="0.0"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit effort="30" velocity="2.0" />
+        <safety_controller k_velocity="10" k_position="15" soft_lower_limit="-2.0" soft_upper_limit="0.5" />
+    </joint>
+
+    <joint type="continuous" name="wheel_right_joint">
+        <parent link="chassis"/>
+        <child link="right_wheel"/>
+        <origin xyz="-0.1 -0.13 0" rpy="0 1.5707 1.5707"/>
+        <axis xyz="0 0 1"/>
+        <calibration rising="0.0"/>
+        <dynamics damping="0.0" friction="0.0"/>
+        <limit effort="30" velocity="2.0" />
+        <safety_controller k_velocity="10" k_position="15" soft_lower_limit="-2.0" soft_upper_limit="0.5" />
+    </joint>
+    <joint name="hokuyo_joint" type="fixed">
+        <axis xyz="0 1 0" />
+        <origin xyz="-0.1 0 .12" rpy="0 0 ${PI}"/>
+        <parent link="base_link"/>
+        <child link="hokuyo_link"/>
+            <dynamics damping="0.7"/>
+      </joint>
+      
+      <joint name="joint_base_to_camera" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.5 0 .1" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="camera_point_link"/>
+    <dynamics damping="0.7"/>
+  </joint>
+
+      
+      
+
+    <!-- Transmissions are where the ros_controller interacts -->
+    <ros2_control name="GazeboSystem" type="system">
+      <hardware>
+        <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      </hardware>
+      <joint name="wheel_left_joint">
+        <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+      </joint>
+      <joint name="wheel_right_joint">
+        <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+      </joint>
+    </ros2_control>
+    
+  <gazebo>
+    <!-- Joint state publisher -->
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+      <parameters>$(find examtask)/config/simple_diff_drive.yaml</parameters>
+     
+    </plugin>
+  </gazebo>  
+
+  <gazebo reference="chassis">
+  	<material>Gazebo/Green</material>
+    	<mu1>.01</mu1>
+    	<mu2>.01</mu2>  	
+        <fdir1>1.000000 0.000000 0.000000</fdir1>
+        <slip1>1.000000</slip1>
+        <slip2>1.000000</slip2>   	  
+  </gazebo>  
+  
+  <gazebo reference="left_wheel">
+    	<material>Gazebo/White</material>
+    	<mu1>100000</mu1>
+    	<mu2>100000</mu2>
+        <fdir1>1.000000 0.000000 0.000000</fdir1>
+        <slip1>0.000000</slip1>
+        <slip2>0.000000</slip2>    
+  </gazebo>  
+
+  <gazebo reference="right_wheel">
+    	<material>Gazebo/White</material>
+    	<mu1>100000</mu1>
+    	<mu2>100000</mu2>  	
+        <fdir1>1.000000 0.000000 0.000000</fdir1>
+        <slip1>0.000000</slip1>
+        <slip2>0.000000</slip2>    
+  </gazebo>  
+  <gazebo reference="castor">
+  	<material>Gazebo/White</material>
+    	<mu1>.01</mu1>
+    	<mu2>.01</mu2>  	
+        <fdir1>1.000000 0.000000 0.000000</fdir1>
+        <slip1>1.000000</slip1>
+        <slip2>1.000000</slip2>     	
+  </gazebo>  
+
+
+
+<gazebo reference="hokuyo_link">
+  <sensor name="lidar" type="ray">
+    <pose>0.215 0 0.215 0 0 0</pose>
+    <always_on>true</always_on>
+    <visualize>true</visualize>
+    <update_rate>5</update_rate>
+    <ray>
+      <scan>
+        <horizontal>
+          <samples>720</samples>
+          <resolution>1.00000</resolution>
+          <min_angle>0.000000</min_angle>
+          <max_angle>6.280000</max_angle>
+        </horizontal>
+      </scan>
+      <range>
+        <min>0.120000</min>
+        <max>14</max>
+        <resolution>0.015000</resolution>
+      </range>
+      <noise>
+        <type>gaussian</type>
+        <mean>0.0</mean>
+        <stddev>0.001</stddev>
+      </noise>
+    </ray>
+    <plugin name="scan" filename="libgazebo_ros_ray_sensor.so">
+      <ros>
+        <remapping>~/out:=scan</remapping>
+      </ros>
+      <output_type>sensor_msgs/LaserScan</output_type>
+      <frame_name>hokuyo_link</frame_name>
+    </plugin>
+  </sensor>
+  </gazebo>
+
+<gazebo reference="camera_point_link">
+<sensor type="camera" name="camera1">
+<update_rate>30.0</update_rate>
+<camera name="head">
+<horizontal_fov>1.3962634</horizontal_fov>
+<image>
+<width>800</width>
+<height>800</height>
+<format>R8G8B8</format>
+</image>
+<clip>
+<near>0.02</near>
+<far>300</far>
+</clip>
+<noise>
+<type>gaussian</type>
+<!-- Noise is sampled independently per pixel on each frame.
+That pixel’s noise value is added to each of its color
+channels, which at that point lie in the range [0,1]. -->
+<mean>0.0</mean>
+<stddev>0.007</stddev>
+</noise>
+</camera>
+<plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+<alwaysOn>true</alwaysOn>
+<updateRate>0.0</updateRate>
+<cameraName>/camera</cameraName>
+<imageTopicName>image_raw</imageTopicName>
+<cameraInfoTopicName>camera_info</cameraInfoTopicName>
+<frameName>camera_point_link</frameName>
+<hackBaseline>0.07</hackBaseline>
+<distortionK1>0.0</distortionK1>
+<distortionK2>0.0</distortionK2>
+<distortionK3>0.0</distortionK3>
+<distortionT1>0.0</distortionT1>
+<distortionT2>0.0</distortionT2>
+</plugin>
+</sensor>
+</gazebo>
+
+
+<gazebo reference="hokuyo_link">
+<sensor type="ray" name="head_hokuyo_sensor">
+<pose>0 0 0 0 0 0</pose>
+<visualize>false</visualize>
+<update_rate>40</update_rate>
+<ray>
+<scan>
+<horizontal>
+<samples>720</samples>
+<resolution>1</resolution>
+<min_angle>-1.570796</min_angle>
+<max_angle>1.570796</max_angle>
+</horizontal>
+</scan>
+<range>
+<min>0.20</min>
+<max>15.0</max>
+<resolution>0.01</resolution>
+</range>
+<noise>
+<type>gaussian</type>
+<!-- Noise parameters based on published spec for Hokuyo laser
+achieving "+-30mm" accuracy at range < 10m. A mean of 0.0m and
+stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+reading. -->
+<mean>0.0</mean>
+<stddev>0.01</stddev>
+</noise>
+</ray>
+<plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+<topicName>/scan</topicName>
+<frameName>hokuyo_link</frameName>
+</plugin>
+</sensor>
+</gazebo>
+
+</robot>
