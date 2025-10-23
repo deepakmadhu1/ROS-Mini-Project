@@ -3,9 +3,9 @@ This ROS 2 package was developed as part of the **Mobile Robotics Examination Ta
 
 ## Task Images
 ## Mapping Example Image
-![Mapping](Results/Mapping.png)
+![Mapping](Results/Mapping.jpeg)
 
-![Marking](Results/MarkingYellow.png)
+![Marking](Results/MarkingYellow.jpeg)
 
 ## Package Overview
 **Included in the package:**
