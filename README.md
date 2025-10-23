@@ -1,6 +1,12 @@
 # Mobile Robotics – ROS 2 Examination Task
 This ROS 2 package was developed as part of the **Mobile Robotics Examination Task** during my Master’s program. It includes a complete differential-drive robot setup in Gazebo, integrated with RViz, mapping, and a Python script for yellow-object detection.
 
+## Task Images
+## Mapping Example Image
+![Mapping](Results/Mapping.png)
+
+![Marking](Results/MarkingYellow.png)
+
 ## Package Overview
 **Included in the package:**
 - `package.xml` and `CMakeLists.txt` (ROS 2 build system files)
